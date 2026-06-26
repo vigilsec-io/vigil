@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: mac-runner
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python venv
+        run: |
+          python3 -m venv venv
+          venv/bin/pip install --upgrade pip
+          venv/bin/pip install -e .
+          venv/bin/pip install pytest==8.3.4 bandit==1.8.5
+
+      - name: Run tests
+        run: venv/bin/pytest tests/ -v --tb=short
+        env:
+          PYTHONPATH: src
+
+      - name: Run bandit (security lint)
+        run: venv/bin/bandit -r src/vigil/ -ll -q 2>/dev/null || true
+
+      - name: Run trivy (dependency scan)
+        run: |
+          if command -v trivy &>/dev/null; then
+            trivy fs --exit-code 0 --severity HIGH,CRITICAL requirements.txt 2>/dev/null || true
+          else
+            echo "trivy not installed — skipping"
+          fi
+
+      - name: Notify Telegram on failure
+        if: failure()
+        run: |
+          TOKEN=$(/opt/homebrew/bin/aws ssm get-parameter \
+            --name /common/agent_telegram_token \
+            --with-decryption --query Parameter.Value --output text --profile default 2>/dev/null || echo "")
+          CHAT_ID=$(/opt/homebrew/bin/aws ssm get-parameter \
+            --name /common/agent_telegram_chat_id \
+            --query Parameter.Value --output text --profile default 2>/dev/null || echo "")
+          if [ -n "$TOKEN" ] && [ -n "$CHAT_ID" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+              -d chat_id="${CHAT_ID}" \
+              -d text="❌ Vigil CI failed on branch ${{ github.ref_name }} — ${{ github.sha }}" \
+              > /dev/null
+          fi
