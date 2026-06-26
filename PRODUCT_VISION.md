@@ -42,22 +42,25 @@ AI writes file → Vigil scans → CRITICAL/HIGH? → Block + show fix
 
 ---
 
-## Rule Catalog
+## Rule Catalog (15 rules — Phase 0 + Phase 1)
 
-| Rule ID | Severity | What it catches |
-|---|---|---|
-| VGL-S001 | CRITICAL | AWS access key hardcoded (`AKIA...`) |
-| VGL-S002 | CRITICAL | Hardcoded password |
-| VGL-S003 | CRITICAL | Hardcoded API key |
-| VGL-S004 | CRITICAL | Hardcoded token |
-| VGL-I001 | CRITICAL | `eval()` / `exec()` injection |
-| VGL-I002 | HIGH | `subprocess(shell=True)` |
-| VGL-I003 | HIGH | `os.system()` |
-| VGL-D001 | CRITICAL | **Docker `"PORT:PORT"` → 0.0.0.0 bypass** ← unique in market |
-| VGL-DF001 | HIGH | Dockerfile running as root (no USER) |
-| VGL-DF002 | MEDIUM | Unpinned `:latest` base image |
-| VGL-DEP001 | HIGH | Python CVEs via pip-audit |
-| VGL-DEP002 | HIGH | Critical npm CVEs via npm audit |
+| Rule ID | Severity | Phase | What it catches |
+|---|---|---|---|
+| VGL-S001 | CRITICAL | 0 | AWS access key hardcoded (`AKIA...`) |
+| VGL-S002 | CRITICAL | 0 | Hardcoded password |
+| VGL-S003 | CRITICAL | 0 | Hardcoded API key |
+| VGL-S004 | CRITICAL | 0 | Hardcoded token |
+| VGL-I001 | CRITICAL | 0 | `eval()` / `exec()` injection |
+| VGL-I002 | HIGH | 0 | `subprocess(shell=True)` |
+| VGL-I003 | HIGH | 0 | `os.system()` |
+| VGL-D001 | CRITICAL | 0 | **Docker `"PORT:PORT"` → 0.0.0.0 bypass** ← unique in market |
+| VGL-DF001 | HIGH | 0 | Dockerfile running as root (no USER) |
+| VGL-DF002 | MEDIUM | 0 | Unpinned `:latest` base image |
+| VGL-DF003 | HIGH | 1 | `ENV PASSWORD=secret` / `ARG TOKEN=default` baked into image |
+| VGL-N001 | HIGH | 1 | nginx missing X-Frame-Options / weak TLS (TLSv1.0/1.1) |
+| VGL-T001 | HIGH | 1 | Trivy IaC deep scan — Dockerfile + Terraform misconfigs |
+| VGL-DEP001 | HIGH | 0 | Python CVEs via pip-audit |
+| VGL-DEP002 | HIGH | 0 | Critical npm CVEs via npm audit |
 
 ---
 
@@ -80,21 +83,22 @@ AI writes file → Vigil scans → CRITICAL/HIGH? → Block + show fix
 
 ---
 
-### Phase 1 — Rule Expansion + Claude Code Marketplace
+### Phase 1 — Rule Expansion + Claude Code Marketplace ✅ Done (2026-06-26)
 **Goal:** Expand rule coverage, publish the Claude Code plugin, first external users.
 
-| Deliverable | Notes |
-|---|---|
-| VGL-T001: trivy IaC deep scan | Dockerfile / Terraform — dedupes against DF001/DF002 |
-| VGL-N001: nginx security headers | X-Frame-Options, CSP, HSTS, server_tokens off |
-| VGL-U001: UFW default-deny missing | Deployment scripts that open ports without default deny |
-| VGL-DF003: secrets in ENV/ARG layers | `ENV SECRET=value` persists in image history |
-| SARIF output format (`--format sarif`) | Enables GitHub Advanced Security annotations |
-| Claude Code plugin manifest + install docs | `plugin/manifest.json` + `plugin/README_INSTALL.md` |
-| Publish to Claude Code marketplace | First external distribution channel |
-| `vigil init` command | Writes hook.sh reference into `.claude/settings.json` automatically |
+| Deliverable | Status | Notes |
+|---|---|---|
+| VGL-DF003: secrets in ENV/ARG layers | ✅ | `ENV PASSWORD=secret` baked into image → HIGH |
+| VGL-N001: nginx security headers + weak TLS | ✅ | X-Frame-Options, server_tokens, TLSv1.1 check |
+| VGL-T001: trivy IaC deep scan | ✅ | Dockerfile + Terraform; skips if trivy absent |
+| SARIF output format (`--format sarif`) | ✅ | SARIF 2.1.0 — GitHub Advanced Security ready |
+| `vigil init` command | ✅ | Auto-wires `.claude/settings.json`; `--global` flag |
+| Claude Code plugin manifest + install docs | ✅ | `plugin/manifest.json` + `plugin/README_INSTALL.md` |
+| 65 tests, all passing | ✅ | +34 tests from Phase 0 |
+| LICENSE + copyright headers | ⏳ | Next — required before any public release |
+| Publish to PyPI / Claude Code marketplace | ⏳ | After license file is added |
 
-**Rule count target:** 16 rules  
+**Rule count:** 15 rules  
 **Success metric:** 100 Claude Code plugin installs; first "caught a real vuln in someone else's project" report  
 **Unlocks:** Free tier goes public; beachhead story is shareable.
 

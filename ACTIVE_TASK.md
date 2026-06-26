@@ -7,7 +7,7 @@
 
 ## Last Updated: 2026-06-26
 
-**Status:** Phase 0 fully complete. 31/31 tests passing. Gitea repo live. Vigil CLI working. This terminal is dedicated to Vigil — Shield work runs in a separate terminal.
+**Status:** Phase 1 in progress. 65/65 tests passing. 5 new rules + SARIF output + `vigil init` + plugin manifest done. Remaining Phase 1: push to Gitea, wire Claude Code hook.
 
 ---
 
@@ -60,36 +60,36 @@ venv/bin/pytest tests/ -v
 
 ---
 
-## Next Steps — Phase 1 (start here next session)
+## Phase 1 — Completed This Session (2026-06-26)
 
-**Resume instruction:** Start with step 1. Read PRODUCT_VISION.md Phase 1 section for full deliverable list.
+1. ✅ **VGL-DF003** — `ENV/ARG` secret layer baking rule added to `dockerfile.py`
+2. ✅ **VGL-N001** — nginx security headers + weak TLS rule (`src/vigil/rules/nginx.py`)
+3. ✅ **VGL-T001** — trivy IaC deep-scan rule (`src/vigil/rules/trivy.py`)
+4. ✅ **SARIF output** — `report_sarif()` in `reporter.py` + `--format sarif` CLI flag
+5. ✅ **`vigil init` command** — wires PostToolUse hook into `.claude/settings.json`
+6. ✅ **Plugin manifest** — `plugin/manifest.json` + `plugin/README_INSTALL.md`
+7. ✅ **34 new tests** — 65 total (was 31); all passing in 0.10s
+8. ✅ **`__init__.py`** — DEFAULT_RULES updated with 3 new rules (DF003, N001, T001)
 
-1. **Add VGL-T001** — trivy IaC deep-scan rule (`src/vigil/rules/trivy.py`)
-   - Calls `trivy config <project_dir>` for Dockerfile/Terraform files
-   - Walk up to `.git` to find project root (same pattern as `shared/scan.sh`)
-   - Deduplicates against DF001/DF002 findings by line
-   - Tests: `test_rules_trivy.py` with mock subprocess
+---
 
-2. **Add VGL-N001** — nginx security headers (`src/vigil/rules/nginx.py`)
-   - `applies_to`: `nginx.conf`, `*.nginx`, `sites-available/*`, `sites-enabled/*`
-   - Checks: `server_tokens off`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, TLS 1.2+ only
-   - Tests: `test_rules_nginx.py` with safe/unsafe nginx fixture files
+## Next Steps — Phase 1 Remaining + Phase 2
 
-3. **Add VGL-DF003** — secrets in Dockerfile ENV/ARG layers
-   - `ENV SECRET=value` or `ARG token` persists in image history
-   - Add to `src/vigil/rules/dockerfile.py`
+**Resume instruction:** Start with step 1.
 
-4. **SARIF output** — add `report_sarif(results)` to `reporter.py`
-   - SARIF v2.1.0 schema; enables GitHub Advanced Security PR annotations
-   - Add `--format sarif` to CLI
+1. **Push Phase 1 to Gitea** — `git add -A && git commit && git push gitea main`
 
-5. **`vigil init` command** — writes hook into `.claude/settings.json` automatically
-   - `vigil init` detects Claude Code settings file, adds PostToolUse hook entry
-   - Zero-friction onboarding: install + `vigil init` = done
+2. **Wire Claude Code hook** — run `vigil init --global` to activate for all projects
+   - Then verify: write an unsafe docker-compose.yml and confirm Claude Code blocks it
 
-6. **Claude Code plugin manifest** (`plugin/manifest.json` + `plugin/README_INSTALL.md`)
-   - Research current Claude Code marketplace plugin spec before writing
-   - README_INSTALL.md: 3-step install (pip install vigil → vigil init → reload)
+3. **Phase 2: `.vigilrc` config file** — allow per-project rule overrides
+   - Schema: `{ "disabled_rules": ["VGL-T001"], "min_severity": "HIGH" }`
+   - Loaded by Engine at startup if `.vigilrc` exists in project root or parents
+
+4. **Phase 2: K8s/Helm YAML rule** (VGL-K001) — scan for `privileged: true`, `hostNetwork: true`, no resource limits
+   - `applies_to`: YAML files containing `apiVersion:` and `kind:` keys
+
+5. **Phase 2: IAM policy rule** (VGL-IAM001) — scan for `"Action": "*"` or `"Resource": "*"` wildcards in policy JSON/YAML
 
 ---
 

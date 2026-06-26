@@ -17,10 +17,10 @@ After any session that adds rules, changes the engine, or ships a distribution a
 Intercepts every file an AI coding assistant writes and blocks it if CRITICAL/HIGH security findings are detected. The only tool that catches the docker-compose `"PORT:PORT"` port binding pattern (confirmed gap across Checkov, Trivy, Snyk, Semgrep — see `PRODUCT_VISION.md`).
 
 - **Core:** stdlib-only Python 3.11+ package (`src/vigil/`)
-- **CLI:** `vigil scan <file|dir>` — exit code 2 on CRITICAL/HIGH
+- **CLI:** `vigil scan <file|dir>` + `vigil init [--global]` — exit code 2 on CRITICAL/HIGH
 - **Hook:** `plugin/hook.sh` — Claude Code PostToolUse hook
-- **Rules:** 12 built-in rules covering secrets, IaC, Dockerfile, and dependency CVEs
-- **Tests:** 32 tests across 3 test files
+- **Rules:** 15 built-in rules covering secrets, IaC, Dockerfile, nginx, Trivy, and dependency CVEs
+- **Tests:** 65 tests across 7 test files, all passing
 - **Distribution:** Claude Code plugin → VS Code extension → GitHub Actions → JetBrains
 
 ## ⚖️ IP & Ownership
@@ -32,21 +32,29 @@ vigil/
 ├── src/vigil/
 │   ├── __init__.py        — package stub
 │   ├── engine.py          — Engine class (scan, scan_dir, blocking)
-│   ├── cli.py             — vigil scan CLI
-│   ├── reporter.py        — terminal + JSON output
+│   ├── cli.py             — vigil scan + vigil init CLI
+│   ├── reporter.py        — terminal + JSON + SARIF 2.1.0 output
 │   └── rules/
 │       ├── base.py        — Severity, Finding, Rule ABC, SEVERITY_ORDER
 │       ├── secrets.py     — VGL-S001–S004, VGL-I001–I003
 │       ├── docker.py      — VGL-D001 (unique docker-compose port rule)
-│       ├── dockerfile.py  — VGL-DF001 (root user), VGL-DF002 (latest tag)
+│       ├── dockerfile.py  — VGL-DF001 (root user), DF002 (latest), DF003 (ENV secrets)
+│       ├── nginx.py       — VGL-N001 (security headers + weak TLS)
+│       ├── trivy.py       — VGL-T001 (trivy IaC deep scan subprocess)
 │       └── deps.py        — VGL-DEP001 (pip-audit), VGL-DEP002 (npm audit)
 ├── plugin/
-│   └── hook.sh            — Claude Code PostToolUse hook
+│   ├── hook.sh            — Claude Code PostToolUse hook
+│   ├── manifest.json      — plugin descriptor (marketplace-ready)
+│   └── README_INSTALL.md  — 3-step install guide
 ├── tests/
 │   ├── conftest.py        — fixtures (safe/unsafe compose + dockerfile)
 │   ├── test_engine.py     — 12 engine tests
+│   ├── test_reporter.py   — 8 SARIF output tests
 │   ├── test_rules_docker.py — 9 docker rule tests
+│   ├── test_rules_dockerfile.py — 9 DF001/DF002/DF003 tests
+│   ├── test_rules_nginx.py  — 9 N001 tests
 │   ├── test_rules_secrets.py — 11 secret/injection tests
+│   ├── test_rules_trivy.py  — 8 T001 tests (mocked subprocess)
 │   └── fixtures/          — 4 test fixture files
 ├── pyproject.toml         — package config, vigil CLI entry point
 ├── requirements-dev.txt   — pytest + bandit (-e . for editable install)
