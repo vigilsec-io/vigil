@@ -278,7 +278,7 @@ This constraint is actually clarifying. It forces the product to earn trust on m
 
 ```bash
 # Install
-pip install vigil  # coming soon — or clone and pip install -e .
+pip install vigilsec
 
 # Scan a file
 vigil scan docker-compose.yml
