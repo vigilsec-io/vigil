@@ -7,7 +7,7 @@
 
 ## Last Updated: 2026-06-26
 
-**Status:** Phase 2 partially complete. 84/84 tests passing. Gitea at 8aea5f4. `.vigilrc` config system + VGL-D002 pushed. Next: VGL-K001 (K8s) + VGL-IAM001 (IAM wildcards).
+**Status:** Phase 2 core rules complete. 102/102 tests passing. Gitea at d915bc8. 18 rules: .vigilrc + VGL-D002 + VGL-K001 + VGL-IAM001. Next: VS Code extension scaffold.
 
 ---
 
@@ -79,31 +79,29 @@ venv/bin/pytest tests/ -v
 2. ✅ **VGL-D002** — docker-compose `environment:` block hardcoded secrets; list + mapping style; variable refs skipped; HIGH severity; 8 tests
 3. ✅ **`engine.py`** — `scan_dir(extra_skip=)` param; merged with defaults
 4. ✅ **`cli.py`** — loads `.vigilrc`; filters disabled rules; `extra_skip`; `effective_sev` logic (--severity overrides min_severity)
-5. ✅ **16 rules total** — 84 tests, all passing; pushed to Gitea (8aea5f4)
+5. ✅ **VGL-K001** — K8s `privileged: true` (CRITICAL), `hostNetwork/hostPID/hostIPC: true` (HIGH); 9 tests
+6. ✅ **VGL-IAM001** — IAM `"Action": "*"` (CRITICAL), `"Resource": "*"` (HIGH); inline + multi-line list; 9 tests
+7. ✅ **18 rules total** — 102 tests, all passing; pushed to Gitea (d915bc8)
 
 ---
 
-## Next Steps — Phase 2 Remaining
+## Next Steps — Phase 2 Remaining + Phase 3 Prep
 
-**Resume instruction:** Implement in order.
+**Resume instruction:** Start with step 1.
 
-1. **VGL-K001: Kubernetes YAML security** — `src/vigil/rules/k8s.py`
-   - `applies_to`: YAML files with `apiVersion:` present on any line
-   - Checks: `privileged: true` (CRITICAL), `hostNetwork: true` (HIGH), `hostPID: true` (HIGH), missing `readOnlyRootFilesystem: true` on containers (MEDIUM)
-   - Parser: line-by-line regex (no YAML parse dep); `_in_containers_block` state flag
+1. **VS Code extension scaffold** (`vigil-vscode/`) — `package.json` + `extension.ts` stub
+   - Trigger: `onDidSaveTextDocument` → `vigil scan <file>` → inline `vscode.Diagnostic` on any CRITICAL/HIGH
+   - Entry point: `extension.ts` calls `child_process.exec(vigil scan --format json ...)`
+   - `package.json`: `engines.vscode`, `contributes.commands` (Vigil: Scan File), `activationEvents`
+   - Build: `vsce package` → `.vsix`; test via "Install from VSIX" in VS Code
 
-2. **VGL-IAM001: IAM wildcard policy** — `src/vigil/rules/iam.py`
-   - `applies_to`: JSON files with `"Statement"` key; YAML files with `Statement:` key; filenames matching `*policy*`, `*iam*`, `*trust*`
-   - Checks: `"Action": "*"` or `"Action": ["*"]` (CRITICAL); `"Resource": "*"` with non-wildcard Action (HIGH)
-   - Note: Avoid false-positives on `arn:aws:...` ARNs that happen to contain `*` wildcard prefixes
+2. **PyPI publish prep** — `python3 -m build && twine check dist/*`
+   - Ensure `pyproject.toml` has `[project.urls]` + long description from README
+   - Upload with `twine upload dist/*` (H1B-safe — free open-source package)
 
-3. **Update `__init__.py`** — add both new rules to DEFAULT_RULES
+3. **`--watch` mode** — `vigil scan --watch <dir>` using `watchfiles` or polling loop
 
-4. **Add tests** — `tests/test_rules_k8s.py` (~9 tests) + `tests/test_rules_iam.py` (~9 tests)
-
-5. **Update PRODUCT_VISION.md** — rule count → 18; Phase 2 table check items
-
-6. **Push to Gitea** + update this file
+4. **Phase 2 status update in PRODUCT_VISION.md** — mark VGL-K001, VGL-IAM001 done
 
 ---
 
@@ -113,7 +111,7 @@ venv/bin/pytest tests/ -v
 |-------|--------|---------|
 | Phase 0 — Core engine | ✅ Complete | 12 rules, 31 tests, CLI, hook, Gitea |
 | Phase 1 — Rule expansion + Claude Code marketplace | ✅ Complete | +3 rules (DF003/N001/T001), SARIF, plugin manifest, 65 tests |
-| Phase 2 — Config + new rules | 🔄 In progress | .vigilrc ✅, VGL-D002 ✅; VGL-K001 + VGL-IAM001 next |
+| Phase 2 — Config + new rules | 🔄 In progress | .vigilrc ✅, VGL-D002 ✅, VGL-K001 ✅, VGL-IAM001 ✅; VS Code ext next |
 | Phase 3 — GitHub Actions + Team dashboard | ⏳ Future | **H1B gated** — build now, revenue after LLC |
 | Phase 4 — Enterprise + JetBrains | ⏳ Future | SOC2, SIEM, on-prem |
 
