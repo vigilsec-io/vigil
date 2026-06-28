@@ -7,7 +7,7 @@
 
 ## Last Updated: 2026-06-27
 
-**Status:** 36 rules, 188 tests, all passing. PyPI package (`vigilsec` 0.1.0) published. README.md written. Cloudflare redirect `thefwss.com/vigil` → Typeform live. Medium article reformatted for Medium's native editor. Next: VS Code extension scaffold.
+**Status:** 36 rules, 193 tests, all passing. vigilsec 0.1.2 on PyPI + VS Code Marketplace. Fix messages cloud-agnostic (AWS SSM → all providers). vigil triage stripped from public package → moved to shared/vigil_triage.py. Public/workspace boundary rule added to CLAUDE.md. Pre-publish checklist enforced. Next: VGL-PKG rules (hallucination/staleness/CVE at generation time) + public GitHub repo.
 
 ---
 
@@ -52,27 +52,36 @@
 
 ---
 
-## Next Steps — Phase 3
+## Phase 3 — Completed (2026-06-28)
+
+1. ✅ **VS Code extension** — published as `vigilsec.vigil-security` v0.1.2
+   - URL: https://marketplace.visualstudio.com/items?itemName=vigilsec.vigil-security
+2. ✅ **PyPI** — `vigilsec` 0.1.2 live; `pip install vigilsec`
+3. ✅ **GitHub Actions** — `vigil-action/workflow-template.yml`; SARIF upload
+4. ✅ **`vigil stats`** — local scan history, ASCII bar chart, severity %, file type
+5. ✅ **Medium article** — https://medium.com/@rjbdjnf/i-built-12-apps-with-ai-every-one-had-the-same-security-hole-so-i-built-a-tool-that-fixes-it-edf42a9aa546
+6. ✅ **Fix messages cloud-agnostic** — AWS SSM → all providers (VGL-S001–S010, VGL-DF003)
+7. ✅ **vigil triage stripped** — moved to shared/vigil_triage.py; public CLI clean
+8. ✅ **Public/workspace boundary rule** — added to CLAUDE.md; pre-publish checklist enforced
+
+## Next Steps — Phase 4
 
 **Resume instruction:** Start with step 1.
 
-1. ✅ **VS Code extension** — published to marketplace as `vigilsec.vigil-security` v0.1.0
-   - URL: https://marketplace.visualstudio.com/items?itemName=vigilsec.vigil-security
-   - `onDidSaveTextDocument` → `vigil scan --format json` → inline Diagnostics + status bar
-   - Tested locally: 4 findings on docker-compose.yml (squiggles confirmed working)
+1. ⏳ **VGL-PKG rules** — package hallucination/staleness/CVE at AI generation time
+   - VGL-PKG001: known CVE in pinned version (OSV.dev batch API)
+   - VGL-PKG002: package doesn't exist on registry (slopsquatting/hallucination)
+   - VGL-PKG003: version significantly behind latest (stale AI training data)
+   - VGL-PKG004: newly registered package with suspicious signals (supply chain)
+   - Inline in hook; 24h local cache at ~/.vigil/pkg_cache.json; fail-open on network error
 
-2. ✅ **GitHub Actions integration** — `vigil-action/action.yml` + `workflow-template.yml`
-   - Users copy `vigil-action/workflow-template.yml` → `.github/workflows/vigil.yml`
-   - SARIF upload → GitHub Code Scanning annotations on PRs
-   - ⏳ GitHub Actions Marketplace submission PARKED — needs public GitHub repo
+2. ⏳ **Public GitHub repo** — mirror vigil/src/vigil/ to github.com/vigilsec/vigil
+   - Unlocks: GitHub Actions Marketplace, stars/forks, contributors
+   - H1B-safe: open-source publishing ≠ revenue
 
-3. ✅ **`vigil stats` command** — `vigil stats` reads `~/.vigil/events.jsonl`
-   - Top 10 rules with ASCII bar chart, severity %, file type breakdown
-   - Confirmed: 181 findings recorded, VGL-D001 at 76%
+3. ⏳ **Open VSX** — publish for Cursor/Windsurf users (Eclipse account friction parked)
 
-4. ✅ **Medium article published** — live at official account
-   - URL: https://medium.com/@rjbdjnf/i-built-12-apps-with-ai-every-one-had-the-same-security-hole-so-i-built-a-tool-that-fixes-it-edf42a9aa546
-   - Topics: Artificial Intelligence, Security, Software Engineering, Docker, Python
+4. ⏳ **pre-commit hooks registry** — `.pre-commit-hooks.yaml` + submit to pre-commit.com
 
 ---
 
@@ -99,7 +108,7 @@
 | Phase 0 — Core engine | ✅ Complete | 12 rules, 31 tests, CLI, hook, Gitea |
 | Phase 1 — Rule expansion | ✅ Complete | +3 rules, SARIF, plugin manifest, 65 tests |
 | Phase 2 — Config + AI-era rules | ✅ Complete | 35 rules, 169 tests, telemetry, tickets closed |
-| Phase 3 — Distribution (VS Code + PyPI) | 🔄 In Progress | PyPI ✅, README ✅, Medium ✅; VS Code ext next |
+| Phase 3 — Distribution (VS Code + PyPI) | ✅ Complete | vigilsec 0.1.2: PyPI ✅, VS Code Marketplace ✅, GitHub Actions template ✅, vigil stats ✅ |
 | Phase 4 — GitHub Actions + Team dashboard | ⏳ Future | H1B gated on revenue features |
 | Phase 5 — Enterprise + JetBrains | ⏳ Future | SOC2, SIEM, on-prem |
 
@@ -113,7 +122,7 @@
 | Total tests | 188 |
 | Test runtime | 0.18s |
 | Gitea commit | c4bf936 (pre-S011/telemetry/README/PyPI) |
-| PyPI package | `vigilsec` 0.1.0 |
+| PyPI package | `vigilsec` 0.1.2 |
 | Lines of source | ~1,600 |
 
 ---
