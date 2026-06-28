@@ -29,6 +29,15 @@ jobs:
         # with hardcoded command names — no user input reaches the shell
         run: venv/bin/bandit -r src/vigil/ --skip B404,B603,B607 -ll -q
 
+      - name: Lint (ruff)
+        run: |
+          venv/bin/pip install ruff -q
+          venv/bin/ruff check . --select E,F,I --ignore E501 \
+            --exclude venv --exit-zero
+      - name: SAST (semgrep)
+        run: |
+          /opt/homebrew/bin/semgrep --config p/python --config p/security-audit \
+            --exclude venv --metrics=off --quiet 2>/dev/null || true
       - name: Run trivy (dependency scan)
         run: |
           if command -v trivy &>/dev/null; then
