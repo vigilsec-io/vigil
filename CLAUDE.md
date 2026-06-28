@@ -69,6 +69,43 @@ vigil/
 - `VGL-DEP###` — Dependencies
 - `VGL-T###` — Trivy-based IaC (future)
 
+## Public vs Workspace — MANDATORY check before writing any new code
+
+Before adding any feature, command, file, or rule, answer these four questions:
+
+| Question | → Public `src/vigil/` | → Workspace `shared/` |
+|---|---|---|
+| Would a stranger find this useful? | Yes | No |
+| Does it reference workspace files? (`WORKSPACE_IMPROVEMENTS.md`, `INCIDENTS.md`, `ACTIVE_TASK.md`, agent configs) | No | Yes |
+| Does it contain FWSS/workspace-specific patterns, SSM paths, or project names? | No | Yes |
+| Would it make sense in the PyPI README? | Yes | No |
+
+**If any answer points to Workspace → the code goes in `shared/`, never in `src/vigil/`.**
+
+### What belongs where
+
+```
+src/vigil/          PUBLIC — ships to PyPI, VS Code Marketplace, future GitHub
+                    Rules, engine, CLI (scan/init/feedback/stats), reporter,
+                    config loader, telemetry, plugin hook
+
+shared/             WORKSPACE-ONLY — never published
+vigil_triage.py     False-positive auto-resolver for WORKSPACE_IMPROVEMENTS.md
+test_vigil_triage.py  Its tests
+```
+
+### Pre-publish checklist (run before every PyPI / VS Code release)
+
+```bash
+venv/bin/pytest tests/ -q                          # all tests green
+venv/bin/bandit -r src/vigil/ --skip B404,B603,B607 -ll -q   # no security issues
+venv/bin/vigil scan src/                           # dogfood — vigil scans itself
+trivy fs --severity HIGH,CRITICAL requirements.txt # no CVEs in deps
+venv/bin/vigil --help                              # confirm no workspace commands visible
+```
+
+If `vigil --help` shows any command that touches workspace files → strip it before publishing.
+
 ## Adding a New Rule
 1. Create or add to the appropriate `src/vigil/rules/<category>.py`
 2. Inherit from `Rule` ABC; implement `applies_to(path)` and `check(path) -> list[Finding]`
