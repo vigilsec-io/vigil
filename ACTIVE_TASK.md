@@ -56,21 +56,19 @@
 
 **Resume instruction:** Start with step 1.
 
-1. ✅ **VS Code extension scaffold** — `vigil-vscode/` complete; `vigil-security-0.1.0.vsix` built
-   - `src/extension.ts` — `onDidSaveTextDocument` → `vigil scan --format json` → inline Diagnostics
-   - Status bar: `$(shield) Vigil` / `$(error) Vigil: N CRITICAL/HIGH` / `$(warning) Vigil: N advisory`
-   - Settings: `vigil.enabled`, `vigil.scanOnSave`, `vigil.executablePath`, `vigil.minSeverity`
-   - Commands: `Vigil: Scan Current File`, `Vigil: Scan Workspace`
-   - Auto-detects vigil in PATH, `~/.local/bin`, macOS Python Library paths, `/opt/homebrew/bin`
-   - **Next:** test locally via "Install from VSIX", then publish to VS Code Marketplace
+1. ✅ **VS Code extension** — published to marketplace as `vigilsec.vigil-security` v0.1.0
+   - URL: https://marketplace.visualstudio.com/items?itemName=vigilsec.vigil-security
+   - `onDidSaveTextDocument` → `vigil scan --format json` → inline Diagnostics + status bar
+   - Tested locally: 4 findings on docker-compose.yml (squiggles confirmed working)
 
-2. **GitHub Actions integration** (ticket #2) — `vigil-action/action.yml`
-   - `uses: fwss/vigil-action@v1` in any CI workflow
-   - SARIF output → GitHub Security tab annotations
+2. ✅ **GitHub Actions integration** — `vigil-action/action.yml` + `workflow-template.yml`
+   - Users copy `vigil-action/workflow-template.yml` → `.github/workflows/vigil.yml`
+   - SARIF upload → GitHub Code Scanning annotations on PRs
+   - ⏳ GitHub Actions Marketplace submission PARKED — needs public GitHub repo
 
-3. **`vigil stats` command** — reads `~/.vigil/events.jsonl`; prints top-10 rules by frequency
-   - Surfaces: "You've blocked 47 CRITICAL findings. Top rule: VGL-D001 (23 hits)"
-   - Data is already captured by telemetry module; just needs the display command
+3. ✅ **`vigil stats` command** — `vigil stats` reads `~/.vigil/events.jsonl`
+   - Top 10 rules with ASCII bar chart, severity %, file type breakdown
+   - Confirmed: 181 findings recorded, VGL-D001 at 76%
 
 4. ✅ **Medium article published** — live at official account
    - URL: https://medium.com/@rjbdjnf/i-built-12-apps-with-ai-every-one-had-the-same-security-hole-so-i-built-a-tool-that-fixes-it-edf42a9aa546
