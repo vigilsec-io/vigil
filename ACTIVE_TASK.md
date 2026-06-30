@@ -5,9 +5,9 @@
 
 ---
 
-## Last Updated: 2026-06-27
+## Last Updated: 2026-06-30
 
-**Status:** 36 rules, 193 tests, all passing. vigilsec 0.1.2 on PyPI + VS Code Marketplace. Fix messages cloud-agnostic (AWS SSM → all providers). vigil triage stripped from public package → moved to shared/vigil_triage.py. Public/workspace boundary rule added to CLAUDE.md. Pre-publish checklist enforced. Next: VGL-PKG rules (hallucination/staleness/CVE at generation time) + public GitHub repo.
+**Status:** 770 tests passing. Group E (tickets #26/#27/#28) done: FP precision tracking in telemetry, first_seen/last_seen timestamps in `vigil stats`, Vigil weekly block in PM Agent Sunday standup. `# pragma: allowlist secret` now also suppresses findings. vigilsec 0.1.2 on PyPI + VS Code Marketplace. Next: Phase 4 (VGL-PKG rules + public GitHub repo).
 
 ---
 
@@ -49,6 +49,16 @@
 19. ✅ **README.md** — full install guide, 36-rule catalog, `.vigilrc` reference, `# vigil: ignore` docs, telemetry opt-out, "Adding a Rule" section
 20. ✅ **PyPI published** — `vigilsec` 0.1.0 on PyPI; `pip install vigilsec`; `pyproject.toml` updated (BUSL-1.1, project URLs, keywords)
 21. ✅ **Medium article reformatted** — `docs/MEDIUM_ARTICLE.md` rewritten for Medium's native editor: no markdown tables, H2/H3 headings, block quotes, prose competitive comparison; 3 title variants; Typeform CTA
+
+---
+
+## Group E — Completed (2026-06-30)
+
+1. ✅ **Ticket #26** — FP precision tracking in telemetry: `record(fp=True)` for suppressed findings; `summary()` returns `fp_count`, `precision`, `first_seen`, `last_seen` per rule
+2. ✅ **Ticket #27** — `vigil stats` shows first/last seen dates and precision % per rule; low-precision rules flagged; `vigil stats --format json` for scripted consumers
+3. ✅ **Ticket #28** — `_vigil_stats()` in pm_runner.py; fires Sunday only (weekday==6); reads `~/.vigil/events.jsonl` for weekly count, top-3 rules, precision warnings
+4. ✅ **`# pragma: allowlist secret`** — now suppresses findings in engine.scan() (same as `# vigil: ignore`)
+5. ✅ 770 tests passing; commit f6b4862; tickets #26/#27/#28 closed on Gitea
 
 ---
 
@@ -119,7 +129,7 @@
 | Metric | Value |
 |--------|-------|
 | Total rules | 36 |
-| Total tests | 188 |
+| Total tests | 770 |
 | Test runtime | 0.18s |
 | Gitea commit | c4bf936 (pre-S011/telemetry/README/PyPI) |
 | PyPI package | `vigilsec` 0.1.2 |
