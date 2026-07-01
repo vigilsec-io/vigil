@@ -2,11 +2,11 @@
   "name": "vigil-security",
   "displayName": "Vigil Security",
   "description": "AI coding security co-pilot — blocks insecure code at generation time. Catches docker-compose port exposure, secrets, AI agent patterns, and more.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "publisher": "vigilsec",
   "license": "BUSL-1.1",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.125.0"
   },
   "categories": ["Linters"],
   "keywords": ["security", "docker", "devsecops", "ai", "linter", "secrets"],
@@ -62,9 +62,9 @@
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/vscode": "^1.74.0",
-    "@vscode/vsce": "^2.22.0",
-    "typescript": "^5.3.0"
+    "@types/node": "26.1.0",
+    "@types/vscode": "1.125.0",
+    "@vscode/vsce": "3.9.2",
+    "typescript": "6.0.3"
   }
 }
